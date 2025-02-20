@@ -79,15 +79,17 @@ extern "C" __declspec(dllexport) char GetGpuVendor() {
         // ベンダーIDに対応するメーカー名の取得と表示
         auto it = vendorMap.find(desc.VendorId);
         if (it != vendorMap.end()) {
-            //std::wcout << L"Manufacturer: " << it->second << std::endl;
-            char gpuvendor = it->second[0];
-            return gpuvendor;
+            if (desc.VendorId == 0x8086) {
+                if (wcsncmp(desc.Description, L"Intel(R) UHD Graphics 630", 24) == 0) {
+                    return 'X';
+                }
+                return 'I';
+            }
+            return it->second[0];
         }
         else {
-            //std::wcout << L"Manufacturer: Unknown" << std::endl;
-            return NULL;
+            return 'X';
         }
-        //break;
     }
 }
 

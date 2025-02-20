@@ -149,7 +149,8 @@
       <AdditionalDependencies>dxgi.lib;nvinfer_10.lib;nvonnxparser_10.lib;cudart_static.lib;cuda.lib;cudart.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(OutDir)\*.dll" "C:\Users\jinta\source\repos\App7\App7\App7\" /s /y</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
