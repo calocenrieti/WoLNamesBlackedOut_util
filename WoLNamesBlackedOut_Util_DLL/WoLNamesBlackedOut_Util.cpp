@@ -80,8 +80,56 @@ extern "C" __declspec(dllexport) char GetGpuVendor() {
         auto it = vendorMap.find(desc.VendorId);
         if (it != vendorMap.end()) {
             if (desc.VendorId == 0x8086) {
-                if (wcsncmp(desc.Description, L"Intel(R) UHD Graphics 630", 24) == 0) {
-                    return 'X';
+                std::wstring descriptions[] = {
+                    L"Intel(R) HD Graphics",
+                    L"Intel(R) HD Graphics 4200",
+                    L"Intel(R) HD Graphics 4400",
+                    L"Intel(R) HD Graphics (P)4600",
+                    L"Intel(R) HD Graphics P4700",
+                    L"Intel(R) HD Graphics 5000",
+                    L"Intel(R) Iris(R) Graphics 5100",
+                    L"Intel(R) Iris(R) Pro Graphics 5200",
+                    L"Intel(R) HD Graphics 5300",
+                    L"Intel(R) HD Graphics 5500",
+                    L"Intel(R) HD Graphics 5600",
+                    L"Intel(R) HD Graphics P5700",
+                    L"Intel(R) HD Graphics 6000",
+                    L"Intel(R) Iris(R) Graphics 6100",
+                    L"Intel(R) Iris(R) Pro Graphics 6200",
+                    L"Intel(R) Iris(R) Pro Graphics P6300",
+                    L"Intel(R) HD Graphics 400",
+                    L"Intel(R) HD Graphics 405",
+                    L"Intel(R) HD Graphics 510",
+                    L"Intel(R) HD Graphics 515",
+                    L"Intel(R) HD Graphics 520",
+                    L"Intel(R) HD Graphics (P)530",
+                    L"Intel(R) Iris(R) Graphics 540",
+                    L"Intel(R) Iris(R) Graphics 550",
+                    L"Intel(R) Iris(R) Graphics P555",
+                    L"Intel(R) Iris(R) Pro Graphics (P)580",
+                    L"Intel(R) HD Graphics 500",
+                    L"Intel(R) HD Graphics 505",
+                    L"Intel(R) HD Graphics 610",
+                    L"Intel(R) HD Graphics 615",
+                    L"Intel(R) HD Graphics 620",
+                    L"Intel(R) HD Graphics (P)630",
+                    L"Intel(R) Iris(R) Plus Graphics 640",
+                    L"Intel(R) Iris(R) Plus Graphics 650",
+                    L"Intel(R) UHD Graphics 610",
+                    L"Intel(R) UHD Graphics 615",
+                    L"Intel(R) UHD Graphics 617",
+                    L"Intel(R) UHD Graphics 620",
+                    L"Intel(R) UHD Graphics (P)630",
+                    L"Intel(R) Iris(R) Plus Graphics 645",
+                    L"Intel(R) Iris(R) Plus Graphics 655",
+                    L"Intel(R) UHD Graphics 600",
+                    L"Intel(R) UHD Graphics 605"
+                };
+
+                for (const auto& descName : descriptions) {
+                    if (wcsncmp(desc.Description, descName.c_str(), descName.length()) == 0) {
+                        return 'X';
+                    }
                 }
                 return 'I';
             }
