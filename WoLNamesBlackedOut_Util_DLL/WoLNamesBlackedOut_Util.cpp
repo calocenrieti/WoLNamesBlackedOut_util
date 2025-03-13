@@ -167,7 +167,7 @@ extern "C" __declspec(dllexport) int onnx2trt()
 
     // アプリケーション専用のフォルダパスを組み立てる
     std::wstring appFolderPath = std::wstring(localAppDataPath) + std::wstring { L"\\WoLNamesBlackedOut" }; 
-    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m.engine" };
+    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m_s.engine" };
     
     std::string engineFilePathStr(engineFilePath.length(), 0);
     std::transform(engineFilePath.begin(), engineFilePath.end(), engineFilePathStr.begin(), [](wchar_t c) {
@@ -186,27 +186,34 @@ extern "C" __declspec(dllexport) int onnx2trt()
     // ONNXパーサーを作成する: parser
     auto parser = unique_ptr<nvonnxparser::IParser>(nvonnxparser::createParser(*network, logger));
     // ファイルの読み取り
-    const char* file_path = "my_yolov8m.onnx";
+    const char* file_path = "./my_yolov8m_s_dy.onnx";
     parser->parseFromFile(file_path, static_cast<int32_t>(ILogger::Severity::kWARNING));
 
     // trtがモデルを最適化する方法を指定するビルド構成を作成する
     auto config = unique_ptr<IBuilderConfig>(builder->createBuilderConfig());
     // 設定の構成
     // ワークスペースのサイズ
-    config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, 1U << 20);
+    config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, 100U << 20);
     // 精度の設定
     config->setFlag(nvinfer1::BuilderFlag::kFP16);
 
     // 最適化構成を作成して設定する
     auto profile = builder->createOptimizationProfile();
-    profile->setDimensions("images", OptProfileSelector::kMIN, Dims4{ 1, 3, 1280, 1280 });
-    profile->setDimensions("images", OptProfileSelector::kOPT, Dims4{ 8, 3, 1280, 1280 });
-    profile->setDimensions("images", OptProfileSelector::kMAX, Dims4{ 16, 3, 1280, 1280 });
+    //profile->setDimensions("images", OptProfileSelector::kMIN, Dims4{ 1, 3, 1280, 1280 });
+    //profile->setDimensions("images", OptProfileSelector::kOPT, Dims4{ 8, 3, 1280, 1280 });
+    //profile->setDimensions("images", OptProfileSelector::kMAX, Dims4{ 16, 3, 1280, 1280 });
+    profile->setDimensions("images", OptProfileSelector::kMIN, Dims4{ 1, 3, 736, 1280 });
+    profile->setDimensions("images", OptProfileSelector::kOPT, Dims4{ 8, 3, 736, 1280 });
+    profile->setDimensions("images", OptProfileSelector::kMAX, Dims4{ 16, 3, 736, 1280 });
     config->addOptimizationProfile(profile);
 
     // クリエーションエンジン
     auto engine = unique_ptr<IHostMemory>(builder->buildSerializedNetwork(*network, *config));
-
+    if (!engine)
+    {
+        cout << "Engine build failed!" << endl;
+        return -1;
+    }
     //シリアル化保存エンジン
     ofstream engine_file(engineFilePathCStr, ios::binary);
     //assert(engine_file.is_open() && "Failed to open engine file");
