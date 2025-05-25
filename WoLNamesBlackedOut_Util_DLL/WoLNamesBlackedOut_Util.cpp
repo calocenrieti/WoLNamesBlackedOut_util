@@ -167,7 +167,7 @@ extern "C" __declspec(dllexport) int onnx2trt()
 
     // アプリケーション専用のフォルダパスを組み立てる
     std::wstring appFolderPath = std::wstring(localAppDataPath) + std::wstring { L"\\WoLNamesBlackedOut" }; 
-    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m_s.engine" };
+    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m_s_20250525.engine" };
     
     std::string engineFilePathStr(engineFilePath.length(), 0);
     std::transform(engineFilePath.begin(), engineFilePath.end(), engineFilePathStr.begin(), [](wchar_t c) {
