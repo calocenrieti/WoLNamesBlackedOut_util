@@ -176,7 +176,7 @@ extern "C" __declspec(dllexport) int onnx2trt()
 	const char* engineFilePathCStr = engineFilePathStr.c_str();
 
     // ビルダーを作成する
-    auto builder = unique_ptr<IBuilder>(createInferBuilder(logger));
+    auto builder = std::unique_ptr<IBuilder>(createInferBuilder(logger));
 
     // ネットワークを作成する（明示的なバッチ）
     uint32_t flag = 1U << static_cast<uint32_t>
