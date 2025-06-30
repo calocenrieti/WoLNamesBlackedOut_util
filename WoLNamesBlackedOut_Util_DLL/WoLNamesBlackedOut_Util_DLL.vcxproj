@@ -75,8 +75,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\include;D:\TensorRT-10.11.0.33\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</ExternalIncludePath>
-    <LibraryPath>D:\TensorRT-10.11.0.33\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\include;D:\TensorRT-10.11.0.33\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</ExternalIncludePath>
+    <LibraryPath>D:\TensorRT-10.11.0.33\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
