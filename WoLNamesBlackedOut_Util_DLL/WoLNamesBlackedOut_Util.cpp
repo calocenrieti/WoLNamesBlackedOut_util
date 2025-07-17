@@ -23,9 +23,9 @@ extern "C" __declspec(dllexport) int GetCUDAComputeCapability() {
     return cudacc;
 
 }
-//device_id 0のCUDAデバイス名を取得して、GTXが含まれていない場合はtrueを返す
-//Tensorコアを持たないGeforce16x0GTXを落とす目的
- extern "C" __declspec(dllexport) bool GetRTXisEnable() {
+//device_id 0のCUDAデバイス名を取得して、RTXが含まれていればtrueを返す
+//RTXシリーズGPUの判定用
+extern "C" __declspec(dllexport) bool GetRTXisEnable() {
 
     int device = 0;
     cudaDeviceProp deviceProp;
@@ -35,13 +35,29 @@ extern "C" __declspec(dllexport) int GetCUDAComputeCapability() {
     // デバイス名を取得
     std::string deviceName(deviceProp.name);
 
-    // デバイス名に"GTX"が含まれているかをチェック
-    if (deviceName.find("GTX") != std::string::npos) {
-        return false; // "GTX"が含まれている場合
+    // デバイス名に"RTX"が含まれているかをチェック
+    if (deviceName.find("RTX") != std::string::npos) {
+        return true; // "RTX"が含まれている場合
     } else {
-        return true; // "GTX"が含まれていない場合
+        return false; // "RTX"が含まれていない場合
     }
+}
 
+// RTXが含まれているか判定し、デバイス名を返す
+extern "C" __declspec(dllexport) bool GetRTXisEnableWithName(char* deviceNameBuffer, int bufferSize) {
+    int device = 0;
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, device);
+
+    // デバイス名を取得
+    std::string deviceName(deviceProp.name);
+
+    // バッファにコピー（バッファサイズを超えないように）
+    strncpy_s(deviceNameBuffer, bufferSize, deviceName.c_str(), bufferSize - 1);
+    deviceNameBuffer[bufferSize - 1] = '\0';
+
+    // "RTX"が含まれているか判定
+    return (deviceName.find("RTX") != std::string::npos);
 }
 
 //プライマリーディスプレイのGPUベンダーを取得する関数。返値はNVIDIAはN,AMDはA,IntelはI,それ以外はNULL
@@ -192,10 +208,13 @@ extern "C" __declspec(dllexport) int onnx2trt()
     // trtがモデルを最適化する方法を指定するビルド構成を作成する
     auto config = unique_ptr<IBuilderConfig>(builder->createBuilderConfig());
     // 設定の構成
+	// TensorRT-RTXで有効にする場合は、以下のコメントを外す
+    //config->setNbComputeCapabilities(1);
+    //config->setComputeCapability(ComputeCapability::kCURRENT, 0);
     // ワークスペースのサイズ
     config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, 100U << 20);
     // 精度の設定
-    config->setFlag(nvinfer1::BuilderFlag::kFP16);
+    config->setFlag(nvinfer1::BuilderFlag::kFP16); //TensorRT-RTXでは無効。ONNXでFP16とする
 
     // 最適化構成を作成して設定する
     auto profile = builder->createOptimizationProfile();
