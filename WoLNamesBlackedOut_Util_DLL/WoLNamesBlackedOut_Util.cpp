@@ -12,7 +12,7 @@
 
 //device_id 0のCUDAデバイスのCompute Capabilityを取得する関数
 //majorx10+minorでCCを取得
-extern "C" __declspec(dllexport) int GetCUDAComputeCapability() {
+extern "C" __declspec(dllexport) int __stdcall GetCUDAComputeCapability() {
 
     int device = 0;
     cudaDeviceProp deviceProp;
@@ -25,7 +25,7 @@ extern "C" __declspec(dllexport) int GetCUDAComputeCapability() {
 }
 //device_id 0のCUDAデバイス名を取得して、RTXが含まれていればtrueを返す
 //RTXシリーズGPUの判定用
-extern "C" __declspec(dllexport) bool GetRTXisEnable() {
+extern "C" __declspec(dllexport) bool __stdcall GetRTXisEnable() {
 
     int device = 0;
     cudaDeviceProp deviceProp;
@@ -43,25 +43,8 @@ extern "C" __declspec(dllexport) bool GetRTXisEnable() {
     }
 }
 
-// RTXが含まれているか判定し、デバイス名を返す
-extern "C" __declspec(dllexport) bool GetRTXisEnableWithName(char* deviceNameBuffer, int bufferSize) {
-    int device = 0;
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, device);
-
-    // デバイス名を取得
-    std::string deviceName(deviceProp.name);
-
-    // バッファにコピー（バッファサイズを超えないように）
-    strncpy_s(deviceNameBuffer, bufferSize, deviceName.c_str(), bufferSize - 1);
-    deviceNameBuffer[bufferSize - 1] = '\0';
-
-    // "RTX"が含まれているか判定
-    return (deviceName.find("RTX") != std::string::npos);
-}
-
 //プライマリーディスプレイのGPUベンダーを取得する関数。返値はNVIDIAはN,AMDはA,IntelはI,それ以外はNULL
-extern "C" __declspec(dllexport) char GetGpuVendor() {
+extern "C" __declspec(dllexport) char __stdcall GetGpuVendor() {
     using namespace Microsoft::WRL;
     // ベンダーIDとメーカー名のマップを作成
     std::map<UINT, std::wstring> vendorMap = {
@@ -158,7 +141,7 @@ extern "C" __declspec(dllexport) char GetGpuVendor() {
 }
 
 //my_yolov8m.onnxファイルを読み込んでTensorRTのエンジンファイルmy_yolov8m.engineを出力する関数
-extern "C" __declspec(dllexport) int onnx2trt()
+extern "C" __declspec(dllexport) int __stdcall onnx2trt()
 {
     using namespace std;
     using namespace nvinfer1;
@@ -183,7 +166,7 @@ extern "C" __declspec(dllexport) int onnx2trt()
 
     // アプリケーション専用のフォルダパスを組み立てる
     std::wstring appFolderPath = std::wstring(localAppDataPath) + std::wstring { L"\\WoLNamesBlackedOut" }; 
-    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m_s_20250525.engine" };
+    std::wstring engineFilePath = appFolderPath + std::wstring{ L"\\my_yolov8m_s_20251004.engine" };
     
     std::string engineFilePathStr(engineFilePath.length(), 0);
     std::transform(engineFilePath.begin(), engineFilePath.end(), engineFilePathStr.begin(), [](wchar_t c) {
@@ -209,12 +192,12 @@ extern "C" __declspec(dllexport) int onnx2trt()
     auto config = unique_ptr<IBuilderConfig>(builder->createBuilderConfig());
     // 設定の構成
 	// TensorRT-RTXで有効にする場合は、以下のコメントを外す
-    //config->setNbComputeCapabilities(1);
-    //config->setComputeCapability(ComputeCapability::kCURRENT, 0);
+    config->setNbComputeCapabilities(1);
+    config->setComputeCapability(ComputeCapability::kCURRENT, 0);
     // ワークスペースのサイズ
-    config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, 100U << 20);
+    config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, static_cast<size_t>(4096U) << 20);
     // 精度の設定
-    config->setFlag(nvinfer1::BuilderFlag::kFP16); //TensorRT-RTXでは無効。ONNXでFP16とする
+    //config->setFlag(nvinfer1::BuilderFlag::kFP16); //TensorRT-RTXでは無効。ONNXでFP16とする
 
     // 最適化構成を作成して設定する
     auto profile = builder->createOptimizationProfile();
